@@ -3,12 +3,12 @@ from bs4 import BeautifulSoup
 import time
 import os
 import json
-import asyncio
+
 
 RESULT = []
 
 
-async def get_source_html(url: str, directory: str):
+def get_source_html(url: str, directory: str):
     driver = webdriver.Chrome() # executable_path="chromedriver.exe"
 
     driver.maximize_window()
@@ -31,7 +31,7 @@ async def get_source_html(url: str, directory: str):
         driver.quit()
 
 
-async def get_items(file_name: str):
+def get_items(file_name: str):
     with open(f"source_pages/{file_name}", 'r') as file:
         source = file.read()
 
@@ -41,7 +41,7 @@ async def get_items(file_name: str):
         yield f"https://online.metro-cc.ru{i.get('href')}"
 
 
-async def get_info(file_name: str):
+def get_info(file_name: str):
     with open(f"item_pages/{file_name}", 'r') as file:
         source = file.read()
 
@@ -96,21 +96,24 @@ async def get_info(file_name: str):
     print(f"Товар по ссылке {result['product_link']} обработан.")
     
 
-async def main():
+def main():
+    start = time.time()
     pages = 5
     for i in range(1, pages + 1):
-        """ await get_source_html(url=f"https://online.metro-cc.ru/category/ovoshchi-i-frukty/ovoshchi?page={i}&in_stock=1", "source_pages")"""
+        # get_source_html(url=f"https://online.metro-cc.ru/category/ovoshchi-i-frukty/ovoshchi?page={i}&in_stock=1", "source_pages")
         links = get_items(f"{i}.html")
 
-        async for link in links:
-            # await get_source_html(url=link, directory="item_pages")
+        for link in links:
+            # get_source_html(url=link, directory="item_pages")
             pass
     for i in os.listdir("./item_pages"):
-        await get_info(i)
+        get_info(i)
 
     with open("result.json", "a") as file:
         json.dump(RESULT, file)
-        
+
+    print(time.time()-start)
+
 
 if __name__ == '__main__':
-    asyncio.run(main())
+    main()
